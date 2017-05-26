@@ -46,6 +46,7 @@ class ApnsPHP_Message
 	protected $_sCategory; /**< @type string notification category. */
 	protected $_bContentAvailable; /**< @type boolean True to initiates the Newsstand background download. @see http://tinyurl.com/ApplePushNotificationNewsstand */
 	protected $_bMutableContent; /**< @type boolean True to activate mutable content key support for ios10 rich notifications. @see https://developer.apple.com/reference/usernotifications/unnotificationserviceextension */
+    protected $_sTitle; /**< @type string Alert message title. */
 
 	protected $_aCustomProperties; /**< @type mixed Custom properties container. */
 
@@ -53,7 +54,7 @@ class ApnsPHP_Message
 
 	protected $_mCustomIdentifier; /**< @type mixed Custom message identifier. */
 
-	/**
+    /**
 	 * Constructor.
 	 *
 	 * @param  $sDeviceToken @type string @optional Recipients device token.
@@ -264,6 +265,26 @@ class ApnsPHP_Message
 		return $this->_bMutableContent;
 	}
 
+    /**
+     * Set the alert message title to display to the user.
+     *
+     * @param  $sText @type string An alert message to display to the user.
+     */
+    public function setTitle($sTitle)
+    {
+        $this->_sTitle = $sTitle;
+    }
+
+    /**
+     * Get the alert message title to display to the user.
+     *
+     * @return @type string The alert message to display to the user.
+     */
+    public function getTitle()
+    {
+        return $this->_sTitle;
+    }
+
 	/**
 	 * Set a custom property.
 	 *
@@ -391,9 +412,12 @@ class ApnsPHP_Message
 	{
 		$aPayload[self::APPLE_RESERVED_NAMESPACE] = array();
 
-		if (isset($this->_sText)) {
-			$aPayload[self::APPLE_RESERVED_NAMESPACE]['alert'] = (string)$this->_sText;
-		}
+        if (isset($this->_sTitle)) {
+            $aPayload[self::APPLE_RESERVED_NAMESPACE]['alert']['body'] = (string)$this->_sText;
+            $aPayload[self::APPLE_RESERVED_NAMESPACE]['alert']['title'] = (string)$this->_sTitle;
+        } else if (isset($this->_sText)) {
+            $aPayload[self::APPLE_RESERVED_NAMESPACE]['alert'] = (string)$this->_sText;
+        }
 		if (isset($this->_nBadge) && $this->_nBadge >= 0) {
 			$aPayload[self::APPLE_RESERVED_NAMESPACE]['badge'] = (int)$this->_nBadge;
 		}
